@@ -16,7 +16,7 @@
 - AWS Lightsail is an easy-to-use cloud platform that simplifies launching and managing virtual servers, databases, and networking.  
 - This project demonstrates **deploying a web application on Lightsail**, including server setup, security, SSL, and domain integration.
 
-**Key Features:**
+## Key Features:
 - Simple VPS setup with static IP  
 - Firewall & security configuration  
 - Deploy web applications (Node.js, PHP, WordPress, etc.)  
@@ -26,16 +26,51 @@
 ---
 
 ## 🌐 Architecture Diagram
-
-```mermaid
-graph LR
-A[🌐 User] -->|HTTP/HTTPS| B[💻 Lightsail Instance]
-B --> C[🖥 Application Server]
-C --> D[💾 Database (Lightsail / External)]
-B --> E[📌 Static IP]
-B --> F[🌍 Domain / Route53]
 ```
-🏗 Architecture Components
+
+                     ┌────────────────────────────┐
+                     │        End Users            │
+                     │  (Web / Mobile Clients)     │
+                     └───────────────┬────────────┘
+                                     │
+                                     ▼
+                         ┌─────────────────────┐
+                         │  Lightsail Static   │
+                         │   Public IP / DNS   │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │  AWS Lightsail       │
+                         │    Instance          │
+                         │  (Linux/Ubuntu)      │
+                         ├─────────────────────┤
+                         │ Application Code     │
+                         │ Web Server (Nginx /  │
+                         │ Apache / NodeJS etc) │
+                         └──────────┬──────────┘
+                                    │
+                        ┌───────────┴───────────┐
+                        │                       │
+                        ▼                       ▼
+             ┌──────────────────┐      ┌──────────────────┐
+             │ Lightsail DB      │      │ Lightsail Storage│
+             │ (MySQL/Postgres)  │      │  (Object/Static) │
+             └──────────────────┘      └──────────────────┘
+                        │
+                        ▼
+           ┌──────────────────────────────┐
+           │ Optional: Lightsail CDN      │
+           │ (Global Cached Content)      │
+           └──────────────────────────────┘
+                        │
+                        ▼
+             ┌───────────────────────────┐
+             │   CloudWatch Metrics       │
+             │   Logs / Monitoring        │
+             └───────────────────────────┘
+```
+## 🏗 Architecture Components
 
 - Component	Description
 - Lightsail Instance	Virtual private server to host applications
@@ -45,16 +80,16 @@ B --> F[🌍 Domain / Route53]
 - Lightsail Database	Optional managed database for applications
 - Snapshots	Backup instances and data for recovery
 
-🛠 Prerequisites
+## 🛠 Prerequisites
 
 - Active AWS account
 - Basic Linux knowledge & SSH client
 - Domain name (optional)
 - Lightsail subscription enabled
 
-⚡ Step-by-Step Deployment
+## ⚡ Step-by-Step Deployment
 
-1️⃣ Launch Lightsail Instance
+### 1️⃣ Launch Lightsail Instance
 
 - Go to AWS Lightsail Console
 - Click Create instance
@@ -63,7 +98,7 @@ B --> F[🌍 Domain / Route53]
 - Pick Instance plan based on your needs
 - Name the instance → Create instance
 
-2️⃣ Connect via SSH
+### 2️⃣ Connect via SSH
 
 - **Browser SSH: Click Connect using SSH**
 
@@ -71,7 +106,7 @@ B --> F[🌍 Domain / Route53]
 ```
 ssh -i /path/to/key.pem username@your-static-ip
 ```
-3️⃣ Configure Firewall & Networking
+### 3️⃣ Configure Firewall & Networking
 
 - Go to Networking → Firewall
 - Add rules for:
@@ -81,7 +116,7 @@ ssh -i /path/to/key.pem username@your-static-ip
 
 - Allocate Static IP → attach to instance
 
-4️⃣ Install Web Server (Example: Nginx)
+### 4️⃣ Install Web Server (Example: Nginx)
 ```
 sudo apt update
 ```
@@ -98,7 +133,7 @@ sudo systemctl start nginx
 sudo systemctl enable nginx
 ```
 
-5️⃣ Deploy Your Application
+### 5️⃣ Deploy Your Application
 
 - Upload files via SCP / SFTP / Lightsail console
 - Configure Nginx / Apache to serve your app
@@ -107,25 +142,28 @@ Restart server:
 ```
 sudo systemctl restart nginx
 ```
-6️⃣ Domain Setup (Optional)
+### 6️⃣ Domain Setup (Optional)
 
 - Point domain A record to Lightsail Static IP
 - Test by visiting your domain
 
-7️⃣ Enable SSL (HTTPS)
+### 7️⃣ Enable SSL (HTTPS)
 ```
 sudo apt install certbot python3-certbot-nginx -y
+```
+
+```
 sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ```
 - Verify HTTPS by visiting your domain
 
-8️⃣ Create Snapshots (Backup)
+### 8️⃣ Create Snapshots (Backup)
 
 - Go to Snapshots → Create snapshot → Name it for reference
 
-🔒 Security Best Practices
+## 🔒 Security Best Practices
 
-- **Use SSH key authentication only, disable password login**
+- *Use SSH key authentication only, disable password login*
 
 - Keep server updated:
 ```
@@ -135,18 +173,21 @@ sudo apt update && sudo apt upgrade -y
 ```
 sudo apt install unattended-upgrades -y
 ```
-- Restrict firewall rules to only necessary ports
+- *Restrict firewall rules to only necessary ports*
 
-📊 Monitoring & Logs
+## 📊 Monitoring & Logs
 
-- Lightsail metrics: CPU, Network, Disk
+- *Lightsail metrics: CPU, Network, Disk*
 
 - Logs:
 ```
 sudo tail -f /var/log/nginx/access.log
+```
+
+```
 sudo tail -f /var/log/nginx/error.log
 ```
-⚙ Useful Commands
+## ⚙ Useful Commands
 
 - Action	Command
 
@@ -166,39 +207,45 @@ sudo systemctl restart nginx
 ```
 sudo systemctl status nginx
 ```
-- Backup snapshot	Lightsail Console → Snapshots
+- *Backup snapshot	Lightsail Console → Snapshots*
 
-🌟 Optimization Tips
+## 🌟 Optimization Tips
 
 - Start with smallest instance → scale later
 - Enable Lightsail Load Balancer for high traffic
 - Use caching with CloudFront
 - Delete unused snapshots/instances to save costs
 
-🛠 Troubleshooting
+## 🛠 Troubleshooting
 
 - Instance unreachable: Check firewall & Static IP
 - Website not loading: Ensure web server running & DNS propagated
 - SSL errors: Check logs at /var/log/letsencrypt/
 
-🌍 Live Demo
-
-Hosted on: http://yourdomain.com
-
-Screenshot:
-
-🔧 Future Enhancements
+## 🔧 Future Enhancements
 
 - Automate instance creation using Terraform / CloudFormation
 - Multi-tier architecture (App + DB + Cache)
 - CI/CD pipelines for auto-deployment
 - Integrate CloudWatch alerts & monitoring
 
-📚 References
+## 📚 References
 
 - AWS Lightsail Documentation
 - AWS Blog Tutorials
 - Certbot Documentation
 
-🙌 Author
+## 🙌 Author
 Prasad
+
+## 📩 Connect With Me :-
+
+If you’d like to collaborate, discuss projects, or just say hello — feel free to reach out!  
+
+### 🔗 Social & Professional Links
+- 🌐 [Portfolio Website](https://prasad-bhoite19.github.io/prasad-portfolio/)  
+- 💼 [LinkedIn](http://linkedin.com/in/prasad-bhoite-a38a64223)  
+- 🐙 [GitHub](https://github.com/Prasad-bhoite19)  
+- ✉️ [Email](prasadsb2002@gmail.com)  
+
+💬 Always open for opportunities in **Cloud, DevOps, and Full-Stack Projects**
